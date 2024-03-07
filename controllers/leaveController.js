@@ -106,10 +106,79 @@ const editLeaveRequest = async (req, res) => {
 };
 
 
+// // Controller function to delete a leave request
+// const deleteLeaveRequest = async (req, res) => {
+//   try {
+//     const { leaveId } = req.params;
+
+//     const deletedLeaveRequest = await Leave.findByIdAndDelete(leaveId);
+//     if (!deletedLeaveRequest) {
+//       return res.status(404).json({ message: 'Leave request not found' });
+//     }
+
+//     res.status(200).json({ message: 'Leave request deleted successfully' });
+//   } catch (error) {
+//     res.status(500).json({ message: error.message });
+//   }
+// };
+
+
+// Controller function to delete a leave request
+const deleteLeaveRequest = async (req, res) => {
+  try {
+    const { leaveId } = req.params;
+
+    // Check if the authenticated user is an admin or manager
+    if (req.user.role === 'admin' || req.user.role === 'manager') {
+      // If the user is an admin or manager, delete the leave request by ID
+      const deletedLeaveRequest = await Leave.findByIdAndDelete(leaveId);
+      if (!deletedLeaveRequest) {
+        return res.status(404).json({ message: 'Leave request not found' });
+      }
+
+      return res.status(200).json({ message: 'Leave request deleted successfully' });
+    } else {
+      // If the user is not an admin or manager, check if they are deleting their own request
+      const userId = req.user._id;
+      const deletedLeaveRequest = await Leave.findOneAndDelete({ _id: leaveId, user: userId });
+      if (!deletedLeaveRequest) {
+        return res.status(404).json({ message: 'Leave request not found or unauthorized to delete' });
+      }
+
+      return res.status(200).json({ message: 'Leave request deleted successfully' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+
+
+
+// Controller function to delete all leave requests (for admins and managers)
+const deleteAllLeaveRequests = async (req, res) => {
+  try {
+    // Check if the authenticated user is an admin or manager
+    if (req.user.role !== 'admin' && req.user.role !== 'manager') {
+      return res.status(403).json({ message: 'Forbidden' });
+    }
+
+    // Delete all leave requests from the database
+    await Leave.deleteMany({});
+    res.status(200).json({ message: 'All leave requests deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+
+
 module.exports = {
   createLeaveRequest,
   getUserLeaveRequests,
   getAllLeaveRequests,
   updateLeaveRequestStatus,
   editLeaveRequest,
+  deleteLeaveRequest,
+  deleteAllLeaveRequests,
 };

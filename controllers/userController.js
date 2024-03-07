@@ -170,7 +170,7 @@ const sendResetPasswordEmail = async (email, resetToken) => {
             <div class="content">
               <h1 class="title">Leave Management System</h1>
               <p>You have requested to reset your password. Click the button below to reset it.</p>
-              <a class="button" href="http://localhost:3000/reset-password/${resetToken}">Reset Password</a>
+              <a class="button" href="https://leave-management-systm.netlify.app/reset-password/${resetToken}">Reset Password</a>
             </div>
             <div class="footer">
               <p>&copy; 2024 Leave Management System. All rights reserved.</p>

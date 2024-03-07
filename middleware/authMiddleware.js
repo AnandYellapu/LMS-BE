@@ -15,16 +15,17 @@ const authenticateToken = (req, res, next) => {
 
   jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
     if (err) {
+      // Handle specific error cases without sending detailed messages to the client
       if (err.name === 'TokenExpiredError') {
-        return res.status(401).json({ message: 'Token has expired' });
+        return res.status(401).json({ message: 'Token has expired. Please Login again' });
       }
-      return res.status(403).json({ message: 'Invalid token' });
+      // For other errors, simply send a generic message
+      return res.status(403).json({ message: 'Invalid token. refresh and Please Login again' });
     }
     req.user = user;
     next();
   });
 };
-
 
 // Middleware function to check user role
 const checkRole = (role) => {
@@ -47,7 +48,9 @@ const getCurrentUser = async (req, res, next) => {
     req.currentUser = user;
     next();
   } catch (err) {
-    return res.status(500).json({ message: err.message });
+    // Log the error without exposing details to the client
+    console.error('Error in getCurrentUser middleware:', err);
+    return res.status(500).json({ message: 'Internal server error' });
   }
 };
 
